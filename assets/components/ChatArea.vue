@@ -1,7 +1,6 @@
 <script>
 
 import MessageWidget from "./MessageWidget";
-import Message from "../data/Message";
 
 export default {
     inject: ['emitter', 'chat'],

@@ -30,10 +30,17 @@ class ApplicationServer extends Application
         $this->httpServer->listen(new IPEndPoint(IPAddress::parse('0.0.0.0'), 8085));
 
         while ($context = $this->httpServer->accept()) {
+            // We've got the request context, so shift it over to asynchronous processing.
             Async(fn () => $this->handleRequest($context));
         }
     }
 
+    /**
+     * Handle the HTTP request and convert it into a Websocket.
+     *
+     * @param HttpRequestContext $context
+     * @return void
+     */
     private function handleRequest(HttpRequestContext $context)
     {
         $name = null;
@@ -41,6 +48,7 @@ class ApplicationServer extends Application
         try {
             $socket = WebSocket::create($context);
 
+            // Perform initial handshake
             for (;;) {
                 $name = $socket->receive()->getData();
 
@@ -59,6 +67,7 @@ class ApplicationServer extends Application
                 break;
             }
 
+            // Process incoming messages.
             for (;;) {
                 $message = json_decode($socket->receive()->getData(), true);
 
@@ -82,6 +91,7 @@ class ApplicationServer extends Application
                 }
             }
         } catch (WebSocketClosedException $exception) {
+            // This user a gone, stop listening.
             $this->disconnectUser($name);
             return;
         }
@@ -97,6 +107,7 @@ class ApplicationServer extends Application
     {
         foreach ($this->users as $user => $socket) {
             try {
+                // Inform the other user about this user.
                 $socket->send(
                     new WebSocketMessage(
                         json_encode(
@@ -107,6 +118,8 @@ class ApplicationServer extends Application
                         )
                     )
                 );
+
+                // Inform this user about the other user.
                 $connectedSocket->send(
                     new WebSocketMessage(
                         json_encode(
@@ -118,6 +131,7 @@ class ApplicationServer extends Application
                     )
                 );
             } catch (WebSocketClosedException $exception) {
+                // Looks like that other user is disconnected, this could take a while :P
                 $this->disconnectUser($user);
             }
         }
@@ -148,6 +162,7 @@ class ApplicationServer extends Application
                     )
                 );
             } catch (WebSocketClosedException $exception) {
+                // Looks like that other user is disconnected, like an endless cycle :/
                 $this->disconnectUser($user);
             }
         }

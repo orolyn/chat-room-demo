@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+{# Source: https://www.bootdey.com/snippets/view/chat-app #}
+
+{% block title %}The chat room{% endblock %}
+
+{% block body %}
+    <div {{ stimulus_controller('main') }}></div>
+{% endblock %}

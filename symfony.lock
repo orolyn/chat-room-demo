@@ -89,6 +89,9 @@
     "nikic/php-parser": {
         "version": "v4.14.0"
     },
+    "orolyn/orolyn": {
+        "version": "dev-master"
+    },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },
@@ -109,6 +112,9 @@
     },
     "psr/event-dispatcher": {
         "version": "1.0.0"
+    },
+    "psr/http-message": {
+        "version": "1.0.1"
     },
     "psr/link": {
         "version": "2.0.1"
@@ -484,7 +490,7 @@
             "assets/app.js",
             "assets/bootstrap.js",
             "assets/controllers.json",
-            "assets/controllers/hello_controller.js",
+            "assets/controllers/main_controller.js",
             "assets/styles/app.css",
             "config/packages/webpack_encore.yaml",
             "package.json",

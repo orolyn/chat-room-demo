@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\ApplicationServer;
 use Orolyn\Concurrency\TaskScheduler;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,6 +19,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ServerCommand extends Command
 {
+    public function __construct(
+        private LoggerInterface $logger
+    ) {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         //$this
@@ -30,7 +37,7 @@ class ServerCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        TaskScheduler::run(new ApplicationServer());
+        TaskScheduler::run(new ApplicationServer($this->logger));
 
         return Command::SUCCESS;
     }

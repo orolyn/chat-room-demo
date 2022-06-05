@@ -4,13 +4,16 @@ namespace App;
 
 use Orolyn\Collection\Dictionary;
 use Orolyn\Concurrency\Application;
+use Orolyn\Net\Http\FailedHttpRequestException;
 use Orolyn\Net\Http\HttpRequestContext;
 use Orolyn\Net\Http\HttpServer;
+use Orolyn\Net\Http\WebSocket\InvalidWebSocketContextException;
 use Orolyn\Net\Http\WebSocket\WebSocket;
 use Orolyn\Net\Http\WebSocket\WebSocketClosedException;
 use Orolyn\Net\Http\WebSocket\WebSocketMessage;
 use Orolyn\Net\IPAddress;
 use Orolyn\Net\IPEndPoint;
+use Psr\Log\LoggerInterface;
 use function Orolyn\Lang\Async;
 use function Orolyn\Lang\Suspend;
 
@@ -19,8 +22,9 @@ class ApplicationServer extends Application
     private HttpServer $httpServer;
     private Dictionary $users;
 
-    public function __construct()
-    {
+    public function __construct(
+        private LoggerInterface $logger
+    ) {
         $this->users = new Dictionary();
     }
 
@@ -29,9 +33,13 @@ class ApplicationServer extends Application
         $this->httpServer = new HttpServer();
         $this->httpServer->listen(new IPEndPoint(IPAddress::parse('0.0.0.0'), 8085));
 
-        while ($context = $this->httpServer->accept()) {
-            // We've got the request context, so shift it over to asynchronous processing.
-            Async(fn () => $this->handleRequest($context));
+        while ($this->httpServer->isListening()) {
+            try {
+                $context = $this->httpServer->accept();
+                Async(fn () => $this->handleRequest($context));
+            } catch (FailedHttpRequestException $exception) {
+                $this->logger->error($exception->getMessage());
+            }
         }
     }
 
@@ -41,12 +49,18 @@ class ApplicationServer extends Application
      * @param HttpRequestContext $context
      * @return void
      */
-    private function handleRequest(HttpRequestContext $context)
+    private function handleRequest(HttpRequestContext $context): void
     {
         $name = null;
 
         try {
-            $socket = WebSocket::create($context);
+            try {
+                $socket = WebSocket::create($context);
+            } catch (InvalidWebSocketContextException $exception) {
+                $this->logger->error($exception->getMessage());
+
+                return;
+            }
 
             // Perform initial handshake
             for (;;) {

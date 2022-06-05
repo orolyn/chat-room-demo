@@ -1,9 +1,6 @@
 <script>
-import {reactive, watch} from 'vue';
 import UserWidgetList from './UserWidgetList';
-import User from '../data/User';
 import ChatArea from "./ChatArea";
-import Message from "../data/Message";
 
 export default {
     inject: ['emitter'],

@@ -1,3 +1,9 @@
+<script>
+export default {
+    props: ['user']
+}
+</script>
+
 <template>
     <img :src="require('../images/user-avatar.png')" alt="avatar">
     <div class="about">
@@ -9,9 +15,3 @@
         </div>
     </div>
 </template>
-
-<script>
-export default {
-    props: ['user']
-}
-</script>

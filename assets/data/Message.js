@@ -1,4 +1,3 @@
-import { reactive } from 'vue';
 
 export default class {
     constructor(text, isMyself) {

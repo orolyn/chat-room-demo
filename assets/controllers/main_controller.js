@@ -3,7 +3,6 @@ import { Controller } from '@hotwired/stimulus';
 import { createApp } from 'vue'
 import Application from '../components/Application'
 import Chat from "../data/Chat";
-import User from "../data/User";
 import { TinyEmitter } from "tiny-emitter";
 
 export default class extends Controller {

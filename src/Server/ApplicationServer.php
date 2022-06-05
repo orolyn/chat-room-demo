@@ -20,6 +20,8 @@ use function Orolyn\Lang\Suspend;
 class ApplicationServer extends Application
 {
     private HttpServer $httpServer;
+
+    /** @var Dictionary<string, WebSocket> */
     private Dictionary $users;
 
     public function __construct(
@@ -40,6 +42,15 @@ class ApplicationServer extends Application
             } catch (FailedHttpRequestException $exception) {
                 $this->logger->error($exception->getMessage());
             }
+        }
+    }
+
+    public function terminate(): void
+    {
+        $this->httpServer->close();
+
+        foreach ($this->users as $socket) {
+            $socket->close();
         }
     }
 

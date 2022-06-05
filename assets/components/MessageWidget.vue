@@ -1,8 +1,4 @@
 <script>
-import {reactive, watch} from 'vue';
-import UserWidgetList from './UserWidgetList';
-import User from '../data/User';
-
 export default {
     props: ['message', 'time', 'isMyself']
 }
